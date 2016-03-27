@@ -2,10 +2,7 @@
 
 extern crate xcb;
 
-use xcb::base;
 use xcb::xproto;
-use xcb::ffi;
-use std::process;
 
 mod util;
 
