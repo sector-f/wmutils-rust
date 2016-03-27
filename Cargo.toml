@@ -1,0 +1,11 @@
+[package]
+name = "wmutils-rust"
+version = "0.1.0"
+authors = ["Adam <sector-f on github>"]
+
+[dependencies]
+xcb = "*"
+
+[[bin]]
+name = "pfw"
+path = "src/pfw.rs"
