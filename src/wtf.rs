@@ -22,17 +22,7 @@ fn main() {
 
     let connection = util::init_xcb(&programname);
 
-    // Basically recreating strtoul(3)
-    let input = if args[1].starts_with("0x") {
-        args[1][2..].to_owned()
-    } else {
-        args[1].to_owned()
-    };
-    let win = match u32::from_str_radix(&input, 16) {
-        Ok(val) => val,
-        Err(_) => 0,
-    };
-
+    let win = util::get_window_id(&args[1]);
 
     xproto::set_input_focus(&connection, xproto::INPUT_FOCUS_POINTER_ROOT as u8, win, xproto::TIME_CURRENT_TIME);
     connection.flush();
