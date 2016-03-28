@@ -3,7 +3,7 @@ extern crate xcb;
 use xcb::base;
 use std::process;
 
-pub fn init_xcb(programname: String) -> (base::Connection, i32) {
+pub fn init_xcb(programname: &String) -> (base::Connection, i32) {
     let (connection, screen_num) = base::Connection::connect();
 
     if connection.has_error() {
