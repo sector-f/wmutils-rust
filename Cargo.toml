@@ -9,3 +9,7 @@ xcb = "*"
 [[bin]]
 name = "pfw"
 path = "src/pfw.rs"
+
+[[bin]]
+name = "wtf"
+path = "src/wtf.rs"
