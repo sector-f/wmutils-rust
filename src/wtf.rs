@@ -1,9 +1,10 @@
 extern crate xcb;
 
 use std::env;
+use std::thread::sleep;
+use std::time::Duration;
 use std::process;
 use xcb::xproto;
-use xcb::ffi;
 
 mod util;
 
@@ -19,7 +20,7 @@ fn main() {
         usage(&programname);
     }
 
-    let (connection, screen_num) = util::init_xcb(&programname);
+    let connection = util::init_xcb(&programname);
 
     // Basically recreating strtoul(3)
     let input = if args[1].starts_with("0x") {
@@ -32,8 +33,8 @@ fn main() {
         Err(_) => 0,
     };
 
-    // println!("{}", win);
 
     xproto::set_input_focus(&connection, xproto::INPUT_FOCUS_POINTER_ROOT as u8, win, xproto::TIME_CURRENT_TIME);
     connection.flush();
+    sleep(Duration::from_millis(1));
 }
