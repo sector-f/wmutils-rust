@@ -3,11 +3,14 @@
 extern crate xcb;
 
 use xcb::xproto;
+use std::env;
 
 mod util;
 
 fn main() {
-    let (connection, screen_num) = util::init_xcb();
+    let programname = env::args().nth(0).unwrap_or_else(|| String::new());
+
+    let (connection, screen_num) = util::init_xcb(programname);
 
     let c = xproto::get_input_focus(&connection);
     let r = c.get_reply();
