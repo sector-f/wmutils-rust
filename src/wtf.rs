@@ -1,8 +1,6 @@
 extern crate xcb;
 
 use std::env;
-use std::thread::sleep;
-use std::time::Duration;
 use std::process;
 use xcb::xproto;
 
@@ -26,5 +24,4 @@ fn main() {
 
     xproto::set_input_focus(&connection, xproto::INPUT_FOCUS_POINTER_ROOT as u8, win, xproto::TIME_CURRENT_TIME);
     connection.flush();
-    sleep(Duration::from_millis(1));
 }

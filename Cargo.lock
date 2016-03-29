@@ -2,7 +2,7 @@
 name = "wmutils-rust"
 version = "0.1.0"
 dependencies = [
- "xcb 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xcb 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -20,7 +20,7 @@ dependencies = [
 
 [[package]]
 name = "xcb"
-version = "0.7.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
