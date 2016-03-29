@@ -14,6 +14,19 @@ pub fn init_xcb(programname: &String) -> base::Connection {
     }
 }
 
+pub fn mapped(conn: &base::Connection, window: xproto::Window) -> bool {
+    let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
+    let win_attrib_cookie_reply_result = win_attrib_cookie.get_reply();
+
+    let map_state = win_attrib_cookie_reply_result.expect("Failed to get window status").map_state();
+
+    if map_state == xcb::xproto::MAP_STATE_VIEWABLE as u8 {
+        true
+    } else {
+        false
+    }
+}
+
 pub fn get_window_id(input: &String) -> xproto::Window {
     let window = if input.starts_with("0x") {
         input[2..].to_owned()

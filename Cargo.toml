@@ -13,3 +13,7 @@ path = "src/pfw.rs"
 [[bin]]
 name = "wtf"
 path = "src/wtf.rs"
+
+[[bin]]
+name = "mapw"
+path = "src/mapw.rs"
