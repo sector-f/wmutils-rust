@@ -21,3 +21,7 @@ path = "src/mapw.rs"
 [[bin]]
 name = "killw"
 path = "src/killw.rs"
+
+[[bin]]
+name = "wattr"
+path = "src/wattr.rs"

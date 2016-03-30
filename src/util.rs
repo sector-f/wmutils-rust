@@ -14,6 +14,19 @@ pub fn init_xcb(programname: &String) -> base::Connection {
     }
 }
 
+// Due to an issue with the XCB binding, this function currently always
+// returns true. However, wattr is the only thing using it right now,
+// and not for anything important
+pub fn exists(conn: &base::Connection, window: xproto::Window) -> bool {
+    let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
+    let win_attrib_cookie_reply_result = win_attrib_cookie.get_reply();
+
+    match win_attrib_cookie_reply_result {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+
 pub fn mapped(conn: &base::Connection, window: xproto::Window) -> bool {
     let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
     let win_attrib_cookie_reply_result = win_attrib_cookie.get_reply();
@@ -25,6 +38,14 @@ pub fn mapped(conn: &base::Connection, window: xproto::Window) -> bool {
     } else {
         false
     }
+}
+
+pub fn ignore(conn: &base::Connection, window: xproto::Window) -> bool {
+    let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
+    let win_attrib_cookie_reply_result = win_attrib_cookie.get_reply();
+
+    win_attrib_cookie_reply_result.expect("Failed to get window status")
+        .override_redirect()
 }
 
 pub fn get_window_id(input: &String) -> xproto::Window {

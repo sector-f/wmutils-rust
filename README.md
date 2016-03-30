@@ -11,7 +11,7 @@ I'm mostly doing it to learn how XCB (and its Rust binding) work.
 - [ ] lsw - list windows
 - [x] mapw - map/unmap windows
 - [x] pfw - print focused window
-- [ ] wattr - show window's attributes
+- [x] wattr - show window's attributes
 - [ ] wmp - move the mouse pointer
 - [ ] wmv - move a window
 - [ ] wname - get a window's name
