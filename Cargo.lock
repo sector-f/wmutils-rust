@@ -2,7 +2,6 @@
 name = "wmutils-rust"
 version = "0.1.0"
 dependencies = [
- "monster 0.1.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "xcb 0.7.1 (git+https://github.com/rtbo/rust-xcb.git)",
 ]
 
@@ -18,11 +17,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "monster"
-version = "0.1.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "xcb"

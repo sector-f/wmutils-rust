@@ -3,9 +3,6 @@ name = "wmutils-rust"
 version = "0.1.0"
 authors = ["Adam <sector-f on github>"]
 
-[dependencies]
-monster = "0.1.19"
-
 [dependencies.xcb]
 git = "https://github.com/rtbo/rust-xcb.git"
 
@@ -29,6 +26,6 @@ path = "src/killw.rs"
 name = "wattr"
 path = "src/wattr.rs"
 
-# [[bin]]
-# name = "wrs"
-# path = "src/wrs.rs"
+[[bin]]
+name = "wrs"
+path = "src/wrs.rs"

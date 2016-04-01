@@ -1,10 +1,8 @@
 extern crate xcb;
-extern crate monster;
 
 use xcb::base;
 use xcb::xproto;
 use std::process;
-use self::monster::incubation::OwningRefMut;
 
 pub fn init_xcb(programname: &String) -> base::Connection {
     match base::Connection::connect(None) {
@@ -16,10 +14,8 @@ pub fn init_xcb(programname: &String) -> base::Connection {
     }
 }
 
-pub fn get_screen(conn: &base::Connection) -> OwningRefMut<xproto::Setup, xproto::Screen> {
-    OwningRefMut::new(Box::new(conn.get_setup()), |setup| {
-        setup.roots().next().unwrap()
-    })
+pub fn get_screen<'a>(setup: &'a xproto::Setup) -> xproto::Screen<'a> {
+    setup.roots().next().expect("Lost connection to X server")
 }
 
 pub fn exists(conn: &base::Connection, window: xproto::Window) -> bool {
