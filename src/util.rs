@@ -16,13 +16,11 @@ pub fn init_xcb(programname: &String) -> base::Connection {
     }
 }
 
-// pub fn get_screen(conn: &base::Connection) -> xproto::Screen {
-//     let setup: xproto::Setup = conn.get_setup();
-//     let mut screen_iter: xproto::ScreenIterator = setup.roots();
-//     let screen_option = screen_iter.next();
-//     let screen: xproto::Screen = screen_option.expect("Lost connection to X server");
-//     screen
-// }
+pub fn get_screen(conn: &base::Connection) -> OwningRefMut<xproto::Setup, xproto::Screen> {
+    OwningRefMut::new(Box::new(conn.get_setup()), |setup| {
+        setup.roots().next().unwrap()
+    })
+}
 
 pub fn exists(conn: &base::Connection, window: xproto::Window) -> bool {
     let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
