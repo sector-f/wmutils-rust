@@ -1,10 +1,10 @@
 extern crate xcb;
+extern crate monster;
 
 use xcb::base;
 use xcb::xproto;
 use std::process;
-use std::mem::transmute;
-use std::ops::{Deref,DerefMut};
+use self::monster::incubation::OwningRefMut;
 
 pub fn init_xcb(programname: &String) -> base::Connection {
     match base::Connection::connect(None) {
@@ -63,43 +63,5 @@ pub fn get_window_id(input: &String) -> xproto::Window {
     match u32::from_str_radix(&window, 16) {
         Ok(val) => val,
         Err(_) => 0,
-    }
-}
-
-pub struct OwningRefMut<T, R> {
-    owned: *mut T,
-    borrow: Option<R>
-}
-
-impl <'a, T: 'a, R: 'a> OwningRefMut<T, R> {
-    fn new<F: Fn(&'a mut T) -> R>(owned: Box<T>, f: F) -> OwningRefMut<T, R> {
-        let owned = Box::into_raw(owned);
-        let ref_mut: &mut T = unsafe { transmute(owned) };
-        let borrow = f(ref_mut);
-        OwningRefMut {
-            owned: owned,
-            borrow: Some(borrow)
-        }
-    }
-}
-
-impl <T, R> Drop for OwningRefMut<T, R> {
-    fn drop(&mut self) {
-        // Drop borrow first, then drop owned
-        self.borrow.take();
-        unsafe { Box::from_raw(self.owned) };
-    }
-}
-
-impl <T, R> Deref for OwningRefMut<T, R> {
-    type Target = R;
-    fn deref(&self) -> &Self::Target {
-        self.borrow.as_ref().expect("bug")
-    }
-}
-
-impl <T, R> DerefMut for OwningRefMut<T, R> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        self.borrow.as_mut().unwrap()
     }
 }
