@@ -2,12 +2,12 @@
 name = "wmutils-rust"
 version = "0.1.0"
 dependencies = [
- "xcb 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xcb 0.7.1 (git+https://github.com/rtbo/rust-xcb.git)",
 ]
 
 [[package]]
 name = "libc"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -15,15 +15,15 @@ name = "log"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "libc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "xcb"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/rtbo/rust-xcb.git#a9b42150156fe2b9a6746670b19f2044ecebadff"
 dependencies = [
- "libc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

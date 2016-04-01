@@ -14,9 +14,20 @@ pub fn init_xcb(programname: &String) -> base::Connection {
     }
 }
 
-// Due to an issue with the XCB binding, this function currently always
-// returns true. However, wattr is the only thing using it right now,
-// and not for anything important
+// pub fn get_screen(conn: &base::Connection) -> xproto::Screen {
+//     let setup: xproto::Setup = conn.get_setup();
+//     let screen_iter: xproto::ScreenIterator = setup.roots();
+//     let screen_option = screen_iter.next();
+
+//     match screen_option {
+//         Some(screen) => screen,
+//         None => {
+//             println!("Lost connection to X server");
+//             process::exit(1);
+//         },
+//     }
+// }
+
 pub fn exists(conn: &base::Connection, window: xproto::Window) -> bool {
     let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
     let win_attrib_cookie_reply_result = win_attrib_cookie.get_reply();

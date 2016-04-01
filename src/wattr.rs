@@ -5,7 +5,7 @@ use std::process;
 use xcb::base;
 use xcb::xproto;
 
-mod util;
+pub mod util;
 
 enum Attribute {
     W,
@@ -21,6 +21,11 @@ fn usage(programname: &String) {
 }
 
 fn get_attribute(conn: &base::Connection, win: xproto::Window, attr: Attribute) -> i32 {
+    if ! util::exists(&conn, win) {
+        println!("0x{:08x}: No such window", win);
+        process::exit(1);
+    }
+
     let geometry_cookie = xproto::get_geometry(&conn, win);
     let geometry_cookie_reply = geometry_cookie.get_reply().unwrap();
 
@@ -35,7 +40,7 @@ fn get_attribute(conn: &base::Connection, win: xproto::Window, attr: Attribute) 
 
 fn main() {
     let programname = env::args().nth(0).unwrap_or_else(|| String::new());
-    let mut args: Vec<_> = env::args().collect();
+    let args: Vec<_> = env::args().collect();
     if args.len() < 2 || args[1] == "-h" || args[1] == "--help" {
         usage(&programname);
     }
@@ -46,7 +51,7 @@ fn main() {
         let win = util::get_window_id(&args[1]);
         match util::exists(&connection, win) {
             true => process::exit(0),
-            false => usage(&programname),
+            false => process::exit(1),
         }
     }
 

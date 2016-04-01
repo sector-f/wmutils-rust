@@ -4,7 +4,7 @@ use std::env;
 use std::process;
 use xcb::xproto;
 
-mod util;
+pub mod util;
 
 enum Action {
     Map,

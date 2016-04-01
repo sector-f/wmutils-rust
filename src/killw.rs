@@ -4,7 +4,7 @@ use std::env;
 use std::process;
 use xcb::xproto;
 
-mod util;
+pub mod util;
 
 fn usage(programname: &String) {
     println!("Usage: {} <wid>", programname);

@@ -5,7 +5,7 @@ extern crate xcb;
 use xcb::xproto;
 use std::env;
 
-mod util;
+pub mod util;
 
 fn main() {
     let programname = env::args().nth(0).unwrap_or_else(|| String::new());
