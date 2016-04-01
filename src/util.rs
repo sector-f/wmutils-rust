@@ -3,6 +3,8 @@ extern crate xcb;
 use xcb::base;
 use xcb::xproto;
 use std::process;
+use std::mem::transmute;
+use std::ops::{Deref,DerefMut};
 
 pub fn init_xcb(programname: &String) -> base::Connection {
     match base::Connection::connect(None) {
@@ -14,13 +16,11 @@ pub fn init_xcb(programname: &String) -> base::Connection {
     }
 }
 
-// pub fn get_screen(conn: &base::Connection) -> xproto::Screen {
-//     let setup: xproto::Setup = conn.get_setup();
-//     let mut screen_iter: xproto::ScreenIterator = setup.roots();
-//     let screen_option = screen_iter.next();
-//     let screen: xproto::Screen = screen_option.expect("Lost connection to X server");
-//     screen
-// }
+pub fn get_screen(conn: &base::Connection) -> OwningRefMut<xproto::Setup, xproto::Screen> {
+    OwningRefMut::new(Box::new(conn.get_setup()), |setup| {
+        setup.roots().next().unwrap()
+    })
+}
 
 pub fn exists(conn: &base::Connection, window: xproto::Window) -> bool {
     let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
@@ -63,5 +63,43 @@ pub fn get_window_id(input: &String) -> xproto::Window {
     match u32::from_str_radix(&window, 16) {
         Ok(val) => val,
         Err(_) => 0,
+    }
+}
+
+pub struct OwningRefMut<T, R> {
+    owned: *mut T,
+    borrow: Option<R>
+}
+
+impl <'a, T: 'a, R: 'a> OwningRefMut<T, R> {
+    fn new<F: Fn(&'a mut T) -> R>(owned: Box<T>, f: F) -> OwningRefMut<T, R> {
+        let owned = Box::into_raw(owned);
+        let ref_mut: &mut T = unsafe { transmute(owned) };
+        let borrow = f(ref_mut);
+        OwningRefMut {
+            owned: owned,
+            borrow: Some(borrow)
+        }
+    }
+}
+
+impl <T, R> Drop for OwningRefMut<T, R> {
+    fn drop(&mut self) {
+        // Drop borrow first, then drop owned
+        self.borrow.take();
+        unsafe { Box::from_raw(self.owned) };
+    }
+}
+
+impl <T, R> Deref for OwningRefMut<T, R> {
+    type Target = R;
+    fn deref(&self) -> &Self::Target {
+        self.borrow.as_ref().expect("bug")
+    }
+}
+
+impl <T, R> DerefMut for OwningRefMut<T, R> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.borrow.as_mut().unwrap()
     }
 }
