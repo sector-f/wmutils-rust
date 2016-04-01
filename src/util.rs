@@ -16,16 +16,10 @@ pub fn init_xcb(programname: &String) -> base::Connection {
 
 // pub fn get_screen(conn: &base::Connection) -> xproto::Screen {
 //     let setup: xproto::Setup = conn.get_setup();
-//     let screen_iter: xproto::ScreenIterator = setup.roots();
+//     let mut screen_iter: xproto::ScreenIterator = setup.roots();
 //     let screen_option = screen_iter.next();
-
-//     match screen_option {
-//         Some(screen) => screen,
-//         None => {
-//             println!("Lost connection to X server");
-//             process::exit(1);
-//         },
-//     }
+//     let screen: xproto::Screen = screen_option.expect("Lost connection to X server");
+//     screen
 // }
 
 pub fn exists(conn: &base::Connection, window: xproto::Window) -> bool {
