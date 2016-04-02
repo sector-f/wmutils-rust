@@ -4,7 +4,7 @@ use xcb::base;
 use xcb::xproto;
 use std::process;
 
-pub fn init_xcb(programname: &String) -> base::Connection {
+pub fn init_xcb(programname: &str) -> base::Connection {
     match base::Connection::connect(None) {
         Ok((conn, _)) => conn,
         Err(_) => {
@@ -49,14 +49,14 @@ pub fn ignore(conn: &base::Connection, window: xproto::Window) -> bool {
         .override_redirect()
 }
 
-pub fn get_window_id(input: &String) -> xproto::Window {
+pub fn get_window_id(input: &str) -> xproto::Window {
     let window = if input.starts_with("0x") {
-        input[2..].to_owned()
+        &input[2..]
     } else {
-        input.to_owned()
+        input
     };
 
-    match u32::from_str_radix(&window, 16) {
+    match u32::from_str_radix(window, 16) {
         Ok(val) => val,
         Err(_) => 0,
     }
