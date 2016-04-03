@@ -84,9 +84,9 @@ fn main() {
 
 fn should_print(conn: &xcb::Connection, window: xcb::Window, flags: Flags) -> bool {
         flags.all
-    || (!util::mapped(conn, window) && flags.hidden) 
+    || (!util::mapped(conn, window) && flags.hidden)
     || ( util::ignore(conn, window) && flags.ignore)
     ||      util::mapped(conn, window)
         && !util::ignore(conn, window)
-        && flags.none()       
+        && flags.none()
 }
