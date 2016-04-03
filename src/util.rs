@@ -28,11 +28,13 @@ pub fn exists(conn: &base::Connection, window: xproto::Window) -> bool {
     }
 }
 
-pub fn mapped(conn: &base::Connection, window: xproto::Window) -> bool {
-    let win_attrib_cookie = xproto::get_window_attributes(&conn, window);
-    let win_attrib_cookie_reply_result = win_attrib_cookie.get_reply();
-
-    let map_state = win_attrib_cookie_reply_result.expect("Failed to get window status").map_state();
+pub fn mapped(conn: &xcb::Connection, window: xcb::Window) -> bool {
+    let attrs = xcb::get_window_attributes(&conn, window).get_reply();
+    match attrs {
+        Ok(attrs) => attrs.map_state() as u32 == xcb::MAP_STATE_VIEWABLE,
+        _ => false
+    }
+}
 
     if map_state == xcb::xproto::MAP_STATE_VIEWABLE as u8 {
         true
