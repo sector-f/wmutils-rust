@@ -56,3 +56,7 @@ pub fn get_window_id(input: &str) -> xproto::Window {
         Err(_) => 0,
     }
 }
+
+pub fn get_query_tree(conn: &xcb::Connection, window: xcb::Window) -> xcb::QueryTreeReply {
+    xcb::query_tree(conn, window).get_reply().expect("no such window")
+}
