@@ -8,7 +8,7 @@ I'm mostly doing it to learn how XCB (and its Rust binding) work.
 - [ ] chwso - change window's stacking order
 - [ ] ignw - ignore/unignore window
 - [x] killw - kill windows
-- [ ] lsw - list windows
+- [x] lsw - list windows
 - [x] mapw - map/unmap windows
 - [x] pfw - print focused window
 - [x] wattr - show window's attributes
