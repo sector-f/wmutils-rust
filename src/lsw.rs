@@ -1,26 +1,8 @@
 extern crate xcb;
-extern crate docopt;
+extern crate clap;
 mod util;
 
-use docopt::Docopt;
-use std::env::args;
-
-const USAGE: &'static str = "
-lsw - list child windows
-
-lsw lists child windows of the given window.
-If no windows are given, lsw lists the children of the root window.
-
-Usage:
-  lsw [-arouh] [<wid>...]
-
-Options:
-  -a          List all windows.
-  -r          Print the ID of the root window.
-  -o          List windows whose override_redirect attribute is set to 1.
-  -u          List unmapped (invisible) windows.
-  -h, --help  Print this help.
-";
+use clap::{Arg, App};
 
 #[derive(Copy,Clone)]
 struct Flags {
@@ -38,14 +20,14 @@ impl Flags {
 }
 
 fn main() {
-    let args = Docopt::new(USAGE)
-        .and_then(|d| d
-            .argv(args())
-            .parse()
-        )
-        .unwrap_or_else(|e| e.exit());
-
-    // println!("{:?}", args);
+    let args = App::new("lsw")
+        .about("list child windows")
+        .arg(Arg::with_name("a").short("a").help("List all windows."))
+        .arg(Arg::with_name("r").short("r").help("Print the ID of the root window."))
+        .arg(Arg::with_name("o").short("o").help("List windows whose override_redirect attribute is set to 1."))
+        .arg(Arg::with_name("u").short("u").help("List unmapped (invisible) windows."))
+        .arg(Arg::with_name("wid").multiple(true))
+        .get_matches();
 
     // Initialize xcb values
     let conn = util::init_xcb("lsw");
@@ -54,21 +36,21 @@ fn main() {
     let root = screen.root();
 
     // Get all passed window ids
-    let mut wids: Vec<_> = args.get_vec("<wid>").into_iter().map(util::get_window_id).collect();
-    if wids.is_empty() {
-        wids.push(screen.root())
-    }
+    let mut wids = match args.values_of("<wid>") {
+        Some(ids) => ids.map(util::get_window_id).collect(),
+        None => vec![screen.root()]
+    };
 
     // Print requested info
-    if args.get_bool("-r") {
+    if args.is_present("r") {
         println!("0x{:08x}", root);
         return;
     }
 
     let flags = Flags {
-        all   : args.get_bool("-a"),
-        hidden: args.get_bool("-u"),
-        ignore: args.get_bool("-o"),
+        all   : args.is_present("a"),
+        hidden: args.is_present("u"),
+        ignore: args.is_present("o"),
     };
 
     // Print the children window IDs if applicable

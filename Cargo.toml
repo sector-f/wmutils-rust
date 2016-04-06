@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Adam <sector-f on github>"]
 
 [dependencies]
-docopt = "0.6.78"
+clap = "2.2.5"
 
 [dependencies.xcb]
 git = "https://github.com/rtbo/rust-xcb.git"
