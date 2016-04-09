@@ -1,39 +1,31 @@
 extern crate xcb;
+extern crate clap;
 
-use std::env;
-use std::process;
-use xcb::xproto;
+use clap::{App, Arg};
 
 pub mod util;
 
-fn usage(programname: &String) {
-    println!("Usage: {} <wid>", programname);
-    process::exit(1);
-}
-
 fn main() {
-    let programname = env::args().nth(0).unwrap_or_else(|| String::new());
-    let mut args: Vec<_> = env::args().collect();
-    if args.len() < 2 || args[1] == "-h" || args[1] == "--help" {
-        usage(&programname);
-    }
-    args.remove(0);
+    let args = App::new("killw")
+        .about("kill windows")
+        .arg(Arg::with_name("parent")
+            .short("p")
+            .help("Kill the parent application of the window instead of the window itself"))
+        .arg(Arg::with_name("wid")
+            .multiple(true)
+            .required(true))
+        .get_matches();
 
-    let mut parent: bool = false;
-    if args[0] == "-p" {
-        parent = true;
-        args.remove(0);
-    }
+    let connection = util::init_xcb("killw");
+    let wids = args.values_of("wid").unwrap(); // Unwrap is fine, the arg is required
 
-    let connection = util::init_xcb(&programname);
+    for wid in wids {
+        let wid = util::get_window_id(&wid);
 
-    for window in args {
-        let win = util::get_window_id(&window);
-
-        if parent {
-            xproto::kill_client(&connection, win);
+        if args.is_present("parent") {
+            xcb::kill_client(&connection, wid);
         } else {
-            xproto::destroy_window(&connection, win);
+            xcb::destroy_window(&connection, wid);
         }
     }
 
