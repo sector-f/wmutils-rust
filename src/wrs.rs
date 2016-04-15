@@ -1,22 +1,16 @@
 extern crate xcb;
+#[macro_use]
+extern crate clap;
 
-use std::env;
-use std::process;
-use xcb::base;
-use xcb::xproto;
+use clap::{App, Arg};
 
 pub mod util;
 
-fn usage(programname: &String) {
-    println!("Usage: {} [-a] <x> <y> <wid> [wid...]", programname);
-    process::exit(1);
-}
-
-fn resize(conn: &base::Connection, win: xproto::Window, absolute: bool, mut x: i16, mut y: i16) {
+fn resize(conn: &xcb::Connection, win: xcb::Window, absolute: bool, mut x: i16, mut y: i16) {
     let setup = conn.get_setup();
     let screen = util::get_screen(&setup);
 
-    let geometry_cookie = xproto::get_geometry(&conn, win);
+    let geometry_cookie = xcb::get_geometry(&conn, win);
     let geometry_cookie_reply_result = geometry_cookie.get_reply();
 
     let reply = match geometry_cookie_reply_result {
@@ -51,41 +45,47 @@ fn resize(conn: &base::Connection, win: xproto::Window, absolute: bool, mut x: i
     // println!("New width: {}", window_width + x);
     // println!("New height: {}", window_height + y);
 
-    // xproto::configure_window(conn,
+    // xcb::configure_window(conn,
     //                          win,
-    //         &[(xproto::CONFIG_WINDOW_WIDTH as u16, 500 as u32),
-    //         (xproto::CONFIG_WINDOW_HEIGHT as u16, 300 as u32),
-    //         (xproto::STACK_MODE_ABOVE as u16, xproto::CONFIG_WINDOW_STACK_MODE as u32)]);
+    //         &[(xcb::CONFIG_WINDOW_WIDTH as u16, 500 as u32),
+    //         (xcb::CONFIG_WINDOW_HEIGHT as u16, 300 as u32),
+    //         (xcb::STACK_MODE_ABOVE as u16, xcb::CONFIG_WINDOW_STACK_MODE as u32)]);
 
-    xproto::configure_window(conn,
+    xcb::configure_window(conn,
         win,
-        &[(xproto::CONFIG_WINDOW_WIDTH as u16, (window_width + x) as u32),
-        (xproto::CONFIG_WINDOW_HEIGHT as u16, (window_height + y) as u32),
-        (xproto::STACK_MODE_ABOVE as u16, xproto::CONFIG_WINDOW_STACK_MODE as u32)]);
+        &[(xcb::CONFIG_WINDOW_WIDTH as u16, (window_width + x) as u32),
+        (xcb::CONFIG_WINDOW_HEIGHT as u16, (window_height + y) as u32),
+        (xcb::STACK_MODE_ABOVE as u16, xcb::CONFIG_WINDOW_STACK_MODE as u32)]);
 }
 
 fn main() {
-    let programname = env::args().nth(0).unwrap_or_else(|| String::new());
-    let mut args: Vec<_> = env::args().collect();
-    if args.len() < 4 || args[1] == "-h" || args[1] == "--help" {
-        usage(&programname);
-    }
-    args.remove(0);
+    let args = App::new("wrs")
+        .about("resize windows")
+        .arg(Arg::with_name("absolute").short("a"))
+        .arg(Arg::with_name("x").required(true))
+        .arg(Arg::with_name("y").required(true))
+        .arg(Arg::with_name("wid")
+            .required(true)
+            .multiple(true))
+        .get_matches();
 
-    let mut absolute = false;
-    if args[0] == "-a" {
-        absolute = true;
-        args.remove(0);
-    }
 
-    let connection = util::init_xcb(&programname);
+    let absolute = args.is_present("absolute");
+    let x = value_t!(args.value_of("x"), i16).unwrap_or_else(invalid_number);
+    let y = value_t!(args.value_of("y"), i16).unwrap_or_else(invalid_number);
+    let wids = args.values_of("wid").unwrap(); // Unwrap is fine, the arg is required
 
-    let x = i16::from_str_radix(&args[0], 10).unwrap_or(0);
-    let y = i16::from_str_radix(&args[1], 10).unwrap_or(0);
+    let connection = util::init_xcb("wrs");
 
-    for argument in args.iter().skip(2) {
-        let win = util::get_window_id(&argument);
-        resize(&connection, win, absolute, x, y);
+    for wid in wids {
+        let wid = util::get_window_id(wid);
+        resize(&connection, wid, absolute, x, y);
     }
     connection.flush();
+}
+
+fn invalid_number<T, E>(_: E) -> T {
+    use std::io::Write;
+    write!(::std::io::stderr(), "invalid number format\n").unwrap();
+    ::std::process::exit(1);
 }

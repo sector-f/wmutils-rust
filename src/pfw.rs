@@ -1,18 +1,18 @@
 // Implementation of wmutils' pfw (print focused window)
 
 extern crate xcb;
+extern crate clap;
 
-use xcb::xproto;
-use std::env;
+use clap::App;
 
 pub mod util;
 
 fn main() {
-    let programname = env::args().nth(0).unwrap_or_else(|| String::new());
+    App::new("pfw").about("print focused window").get_matches();
 
-    let connection = util::init_xcb(&programname);
+    let connection = util::init_xcb("pfw");
 
-    let c = xproto::get_input_focus(&connection);
+    let c = xcb::get_input_focus(&connection);
     let r = c.get_reply();
 
     match r {

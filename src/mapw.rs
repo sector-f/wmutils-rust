@@ -1,59 +1,53 @@
 extern crate xcb;
+extern crate clap;
 
-use std::env;
-use std::process;
-use xcb::xproto;
+use clap::{App, Arg, ArgGroup};
 
 pub mod util;
 
-enum Action {
-    Map,
-    Unmap,
-    Toggle,
-    Usage,
-}
-
-fn usage(programname: &String) {
-    println!("Usage: {} [-h] [-mut <wid> [wid..]]", programname);
-    process::exit(1);
-}
-
 fn main() {
-    let programname = env::args().nth(0).unwrap_or_else(|| String::new());
-    let args: Vec<_> = env::args().collect();
+    let args = App::new("mapw")
+        .about("map or unmap windows")
+        .arg(Arg::with_name("map").short("m").help("Map (show) wid."))
+        .arg(Arg::with_name("toggle").short("t").help("Toggle wid's visibility."))
+        .arg(Arg::with_name("unmap").short("u").help("Unmap (hide) wid."))
+        .group(ArgGroup::with_name("options").required(true).args(&[
+            "map", "toggle", "unmap"
+        ]))
+        .arg(Arg::with_name("wid")
+            .multiple(true)
+            .required(true))
+        .get_matches();
 
-    if args.len() <= 2 {
-        usage(&programname);
+    let connection = util::init_xcb("mapw");
+    let wids = args.values_of("wid").unwrap(); // Unwrap is fine, the arg is required
+
+    let action: fn(&xcb::Connection, xcb::Window) =
+        if args.is_present("map") { map }
+        else if args.is_present("unmap") { unmap }
+        else { toggle };
+
+    for wid in wids {
+        let wid = util::get_window_id(wid);
+        action(&connection, wid);
     }
 
-    let action =
-        if args[1] == "-m" {
-            Action::Map
-        } else if args[1] == "-u" {
-            Action::Unmap
-        } else if args[1] == "-t" {
-            Action::Toggle
-        } else {
-            Action::Usage
-        };
-
-    if let Action::Usage = action {
-        usage(&programname);
-    }
-
-    let connection = util::init_xcb(&programname);
-    let window = util::get_window_id(&args[2]);
-
-    if let Action::Map = action {
-        xproto::map_window(&connection, window);
-    } else if let Action::Unmap = action {
-        xproto::unmap_window(&connection, window);
-    } else if let Action::Toggle = action {
-        if util::mapped(&connection, window) {
-            xproto::unmap_window(&connection, window);
-        } else {
-        xproto::map_window(&connection, window);
-        }
-    }
     connection.flush();
+}
+
+fn map(connection: &xcb::Connection, window: xcb::Window) {
+    xcb::map_window(connection, window);
+}
+
+fn unmap(connection: &xcb::Connection, window: xcb::Window) {
+    xcb::unmap_window(connection, window);
+}
+
+fn toggle(connection: &xcb::Connection, window: xcb::Window) {
+    if util::mapped(connection, window) {
+        xcb::unmap_window(connection, window);
+    }
+    else {
+        xcb::map_window(connection, window);
+    }
 }
